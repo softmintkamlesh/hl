@@ -5,6 +5,8 @@ import com.hypershop.dto.response.BrandResponse;
 import com.hypershop.jpa.model.Brand;
 import com.hypershop.jpa.repository.BrandRepository;
 import com.hypershop.service.BrandService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +17,7 @@ import java.util.List;
 @Transactional
 public class BrandServiceImpl implements BrandService {
 
+    private static  final Logger LOGGER= LogManager.getLogger(BrandServiceImpl.class);
     private final BrandRepository brandRepository;
     private final S3StorageService s3StorageService;
 
@@ -26,6 +29,10 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public BrandResponse createBrand(BrandRequest request, MultipartFile logo) {
+        LOGGER.info("request :{}",request);
+        LOGGER.info("logo :{}",logo);
+
+
         Brand brand = new Brand();
         brand.setName(request.getName());
         brand.setDescription(request.getDescription());

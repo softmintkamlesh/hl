@@ -4,6 +4,7 @@ import com.hypershop.dto.request.BrandRequest;
 import com.hypershop.dto.response.BrandResponse;
 import com.hypershop.service.BrandService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,13 +20,23 @@ public class BrandController {
 
 
 
-    // Create brand (SUPER_ADMIN, CATALOG_ADMIN)
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','CATALOG_ADMIN')")
-    public BrandResponse createBrand(@ModelAttribute BrandRequest request) {
-        // request.getLogo() se file milegi
-        return brandService.createBrand(request, request.getLogo());
+    public BrandResponse createBrand(
+            @RequestParam("name") String name,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "active", required = false) Boolean active,
+            @RequestParam("logo") MultipartFile logo
+    ) {
+        BrandRequest request = new BrandRequest();
+        request.setName(name);
+        request.setDescription(description);
+        request.setActive(active);
+
+        return brandService.createBrand(request, logo);
     }
+
+
 
     // Update brand
     @PutMapping("/{id}")

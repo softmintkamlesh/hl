@@ -1,6 +1,4 @@
-// JwtAuthenticationFilter.java
 package com.hypershop.security;
-
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hypershop.dto.response.GlobalResponse;
@@ -10,6 +8,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,6 +24,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    private static final Logger LOGGER= LogManager.getLogger(JwtAuthenticationFilter.class);
 
     private final JwtUtil jwtUtil;
     private final ObjectMapper objectMapper;
@@ -34,31 +35,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                    FilterChain filterChain) throws ServletException, IOException {
         
         try {
-            // 1. Header se token extract karo
+            LOGGER.info("Accessed Api: {}", request.getRequestURI());
+
             String token = extractTokenFromRequest(request);
 
-            // 2. Token hai aur valid hai
             if (token != null && jwtUtil.validateToken(token) && !jwtUtil.isTokenExpired(token)) {
-                
-                // 3. Token se userId aur role extract karo
+
                 String userId = jwtUtil.extractUserId(token);
                 String role = jwtUtil.extractRole(token);
 
-                // 4. Authorities banao (NO DATABASE CALL - Pure Stateless!)
                 List<SimpleGrantedAuthority> authorities = 
                     List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
-                // 5. Authentication object banao
                 UsernamePasswordAuthenticationToken authentication = 
                     new UsernamePasswordAuthenticationToken(userId, null, authorities);
                 
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                // 6. SecurityContext me set karo
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-
-            // 7. Next filter ko call karo
             filterChain.doFilter(request, response);
             
         } catch (Exception e) {

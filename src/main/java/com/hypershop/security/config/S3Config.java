@@ -11,8 +11,9 @@ public class S3Config {
 
     @Bean
     public S3Client s3Client() {
+
         return S3Client.builder()
-                .region(Region.AP_SOUTH_1)   // jo region tune aws configure me diya
-                .build();                    // yahi DefaultCredentialsProvider use karega
+                .region(Region.AP_SOUTH_1)
+                .build();
     }
 }

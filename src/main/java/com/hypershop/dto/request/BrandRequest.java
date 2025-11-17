@@ -1,11 +1,9 @@
 package com.hypershop.dto.request;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
-@Getter
-@Setter
+@Data
 public class BrandRequest {
 
     private String name;
